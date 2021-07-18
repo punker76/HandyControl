@@ -116,7 +116,15 @@ namespace HandyControl.Controls
         public CheckComboBox()
         {
             AddHandler(Controls.Tag.ClosedEvent, new RoutedEventHandler(Tags_OnClosed));
-            CommandBindings.Add(new CommandBinding(ControlCommands.Clear, (s, e) => SelectedItems.Clear()));
+
+            CommandBindings.Add(new CommandBinding(ControlCommands.Clear, (s, e) =>
+            {
+                SetCurrentValue(SelectedValueProperty, null);
+                SetCurrentValue(SelectedItemProperty, null);
+                SetCurrentValue(SelectedIndexProperty, -1);
+                SelectedItems.Clear();
+            }));
+
             ItemContainerGenerator.StatusChanged += ItemContainerGenerator_StatusChanged;
         }
 
@@ -177,9 +185,22 @@ namespace HandyControl.Controls
                 }
             }
 
-            IsError = !result.Data;
-            ErrorStr = result.Message;
-            return result.Data;
+            var isError = !result.Data;
+            if (isError)
+            {
+                SetCurrentValue(IsErrorProperty, ValueBoxes.TrueBox);
+                SetCurrentValue(ErrorStrProperty, result.Message);
+            }
+            else
+            {
+                isError = Validation.GetHasError(this);
+                if (isError)
+                {
+                    SetCurrentValue(ErrorStrProperty, Validation.GetErrors(this)[0].ErrorContent);
+                }
+            }
+
+            return !isError;
         }
 
         public Func<string, OperationResult<bool>> VerifyFunc { get; set; }
@@ -200,7 +221,7 @@ namespace HandyControl.Controls
 
         private void Tags_OnClosed(object sender, RoutedEventArgs e)
         {
-            if (e.OriginalSource is Tag tag && tag.Tag is CheckComboBoxItem checkComboBoxItem)
+            if (e.OriginalSource is Tag { Tag: CheckComboBoxItem checkComboBoxItem })
             {
                 checkComboBoxItem.SetCurrentValue(IsSelectedProperty, false);
             }

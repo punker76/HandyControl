@@ -110,7 +110,7 @@ namespace HandyControl.Controls
                 }
 
                 _transform.X = p.X - _previewContent.ActualWidth * 0.5;
-                _transform.Y = TranslatePoint(new Point(), _adorner).Y - _previewContent.ActualHeight - PreviewContentOffset;
+                _transform.Y = -_previewContent.ActualHeight - PreviewContentOffset;
 
                 PreviewPosition = _thumb.IsMouseCaptureWithin ? Value : pos;
             }
@@ -128,7 +128,7 @@ namespace HandyControl.Controls
                     return;
                 }
 
-                _transform.X = TranslatePoint(new Point(), _adorner).X - _previewContent.ActualWidth - PreviewContentOffset;
+                _transform.X = -_previewContent.ActualWidth - PreviewContentOffset;
                 _transform.Y = p.Y - _previewContent.ActualHeight * 0.5;
 
                 PreviewPosition = _thumb.IsMouseCaptureWithin ? Value : pos;
@@ -165,7 +165,7 @@ namespace HandyControl.Controls
             {
                 layer.Remove(_adorner);
             }
-            else if (_adorner != null && _adorner.Parent is AdornerLayer parent)
+            else if (_adorner is { Parent: AdornerLayer parent })
             {
                 parent.Remove(_adorner);
             }
@@ -195,8 +195,17 @@ namespace HandyControl.Controls
             {
                 _transform = new TranslateTransform();
                 _previewContent.RenderTransform = _transform;
-                _previewContent.HorizontalAlignment = HorizontalAlignment.Left;
-                _previewContent.VerticalAlignment = VerticalAlignment.Top;
+
+                if (Orientation == Orientation.Horizontal)
+                {
+                    _previewContent.HorizontalAlignment = HorizontalAlignment.Left;
+                    _previewContent.VerticalAlignment = VerticalAlignment.Center;
+                }
+                else
+                {
+                    _previewContent.HorizontalAlignment = HorizontalAlignment.Center;
+                    _previewContent.VerticalAlignment = VerticalAlignment.Top;
+                }
             }
         }
     }

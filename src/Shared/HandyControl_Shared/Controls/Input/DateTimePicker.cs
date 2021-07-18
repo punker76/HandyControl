@@ -132,7 +132,13 @@ namespace HandyControl.Controls
         public static readonly DependencyProperty IsDropDownOpenProperty = DependencyProperty.Register(
             "IsDropDownOpen", typeof(bool), typeof(DateTimePicker), new FrameworkPropertyMetadata(ValueBoxes.FalseBox, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnIsDropDownOpenChanged, OnCoerceIsDropDownOpen));
 
-        private static object OnCoerceIsDropDownOpen(DependencyObject d, object baseValue) => d is DateTimePicker dp && !dp.IsEnabled ? false : baseValue;
+        private static object OnCoerceIsDropDownOpen(DependencyObject d, object baseValue) =>
+            d is DateTimePicker
+            {
+                IsEnabled: false
+            }
+                ? false
+                : baseValue;
 
         private static void OnIsDropDownOpenChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -172,7 +178,7 @@ namespace HandyControl.Controls
 
         private static void OnSelectedDateTimeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (!(d is DateTimePicker dp)) return;
+            if (d is not DateTimePicker dp) return;
 
             if (dp.SelectedDateTime.HasValue)
             {
@@ -421,9 +427,21 @@ namespace HandyControl.Controls
                 }
             }
 
-            IsError = !result.Data;
-            ErrorStr = result.Message;
-            return result.Data;
+            var isError = !result.Data;
+            if (isError)
+            {
+                SetCurrentValue(IsErrorProperty, ValueBoxes.TrueBox);
+                SetCurrentValue(ErrorStrProperty, result.Message);
+            }
+            else
+            {
+                isError = Validation.GetHasError(this);
+                if (isError)
+                {
+                    SetCurrentValue(ErrorStrProperty, Validation.GetErrors(this)[0].ErrorContent);
+                }
+            }
+            return !isError;
         }
 
         public override string ToString() => SelectedDateTime?.ToString(DateTimeFormat) ?? string.Empty;
@@ -555,7 +573,7 @@ namespace HandyControl.Controls
 
         private void PopupPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (sender is Popup popup && !popup.StaysOpen)
+            if (sender is Popup { StaysOpen: false })
             {
                 if (_dropDownButton?.InputHitTest(e.GetPosition(_dropDownButton)) != null)
                 {

@@ -2,15 +2,9 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:hc="clr-namespace:HandyControl.Controls"
                     xmlns:ex="clr-namespace:HandyControl.Tools.Extension"
-                    xmlns:themes="clr-namespace:HandyControl.Themes"
                     xmlns:system="clr-namespace:System;assembly=mscorlib"
                     xmlns:interactivity="clr-namespace:HandyControl.Interactivity"
                     xmlns:langs="clr-namespace:HandyControl.Properties.Langs">
-
-    <ResourceDictionary.MergedDictionaries>
-        <themes:SharedResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Styles/Tag.xaml"/>
-        <themes:SharedResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Styles/Base/ComboBoxBaseStyle.xaml"/>
-    </ResourceDictionary.MergedDictionaries>
 
     <Style x:Key="Tag4CheckComboBoxStyle" BasedOn="{StaticResource TagBaseStyle}" TargetType="hc:Tag">
         <Setter Property="Margin" Value="0,3,3,0"/>
@@ -185,6 +179,7 @@
         <Setter Property="Padding" Value="{StaticResource DefaultInputPadding}"/>
         <Setter Property="Template" Value="{StaticResource CheckComboBoxTemplate}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Validation.ErrorTemplate" Value="{x:Null}"/>
     </Style>
 
     <ControlTemplate x:Key="CheckComboBoxExtendTopTemplate" TargetType="hc:CheckComboBox">
@@ -575,6 +570,7 @@
     </ControlTemplate>
 
     <Style x:Key="CheckComboBoxPlusBaseStyle" BasedOn="{StaticResource CheckComboBoxExtendBaseStyle}" TargetType="hc:CheckComboBox">
+        <Setter Property="IsError" Value="{Binding Path=(Validation.HasError),RelativeSource={RelativeSource Self}}"/>
         <Setter Property="Template" Value="{StaticResource CheckComboBoxPlusTopTemplate}"/>
         <Style.Triggers>
             <Trigger Property="hc:InfoElement.TitlePlacement" Value="Left">
